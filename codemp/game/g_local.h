@@ -174,6 +174,10 @@ extern void *g2SaberInstance;
 extern qboolean gEscaping;
 extern int gEscapeTime;
 
+
+// smUJK - Serverside - Jcinfo bitvalues
+#define DF_NO_CROUCHFIX 256
+
 struct gentity_s {
 	//rww - entstate must be first, to correspond with the bg shared entity structure
 	entityState_t	s;				// communicated by server to clients
