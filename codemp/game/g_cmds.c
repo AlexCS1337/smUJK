@@ -3124,6 +3124,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
  					challenged->health = challenged->client->ps.stats[STAT_HEALTH] = g_duelStartHealth.integer;
  					challenged->client->ps.stats[STAT_ARMOR] = g_duelStartArmor.integer;
  				}
+		}
 		else
 		{
 			//Print the message that a player has been challenged in private, only announce the actual duel initiation in private
