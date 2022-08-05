@@ -1,4 +1,4 @@
-# smuJK
+# smUJK
 
 # Changes and additions
 * All taunts are available in all game modes (meditate, gloat, flourish, etc)
@@ -6,6 +6,8 @@
 * Results of a private duel are displayed to all, with the remaining health of the winning player
 * Added a cvar to toggle Sabergun (1.00 Glitch)
 * Allows old clipping method for jumping into map glitches for funsies
+
+More fun and wild experiments to come!
 
 
 # OpenJK
