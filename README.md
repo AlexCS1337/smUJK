@@ -1,5 +1,13 @@
-# OpenJK
+# smuJK
 
+# Changes and additions
+* All taunts are available in all game modes (meditate, gloat, flourish, etc)
+* Private duels now start with full health and shield, and can be changed via new cvars (g_duelStartHealth and g_duelStartArmor)
+* Results of a private duel are displayed to all, with the remaining health of the winning player
+* Added a cvar to toggle Sabergun (1.00 Glitch)
+
+
+#OpenJK
 OpenJK is an effort by the JACoders group to maintain and improve the game engines on which the Jedi Academy (JA) and Jedi Outcast (JO) games run on, while maintaining *full backwards compatibility* with the existing games. *This project does not attempt to rebalance or otherwise modify core gameplay*.
 
 Our aims are to:
