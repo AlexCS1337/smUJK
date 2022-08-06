@@ -475,6 +475,8 @@ typedef struct clientSession_s {
 	int			siegeDesiredTeam;
 
 	char		IP[NET_ADDRSTRMAXLEN];
+
+	qboolean	  sawMOTD;
 } clientSession_t;
 
 // playerstate mGameFlags
@@ -791,6 +793,9 @@ struct gclient_s {
 
 	//fallen duelist
 	qboolean	iAmALoser;
+
+	char		csMessage[MAX_STRING_CHARS];	// Message to say CenterScreen
+	short		csTimeLeft;						// Time left for client's CenterScreen
 
 	int			lastGenCmd;
 	int			lastGenCmdTime;

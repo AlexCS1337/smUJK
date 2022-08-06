@@ -3370,6 +3370,35 @@ void Cmd_AddBot_f( gentity_t *ent ) {
 
 /*
 =================
+smUJK mod commands
+=================
+*/
+void Cmd_About_f(gentity_t *ent)
+{
+	char buf[MAX_STRING_CHARS - 64] = { 0 };
+
+	if (!ent || !ent->client)
+		return;
+
+	Q_strncpyz(buf, va("^5 Hi there, %s^5. This server is using the smUJK mod.\n", ent->client->pers.netname), sizeof(buf));
+	Q_strcat(buf, sizeof(buf), "   ^3There are a bunch of WIP commands such as /showEffect" );
+	trap->SendServerCommand(ent-g_entities, va("print \"%s\n\"", buf));
+
+	return;
+}
+
+void Cmd_ShowEffect_f(gentity_t *ent)
+{
+	if (!ent || !ent->client)
+		return;
+
+	G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/effects/green_lightning1.wav"));
+	G_PlayEffectID(G_EffectIndex("effects/env/electricity.efx"), ent->client->ps.origin, ent->client->ps.viewangles);
+	return;
+}
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -3428,6 +3457,9 @@ command_t commands[] = {
 	{ "voice_cmd",			Cmd_VoiceCommand_f,			CMD_NOINTERMISSION },
 	{ "vote",				Cmd_Vote_f,					CMD_NOINTERMISSION },
 	{ "where",				Cmd_Where_f,				CMD_NOINTERMISSION },
+// smUJK commands
+	{ "about",				Cmd_About_f,				0 },
+	{ "showeffect",			Cmd_ShowEffect_f,			CMD_ALIVE|CMD_NOINTERMISSION },	
 };
 static const size_t numCommands = ARRAY_LEN( commands );
 
