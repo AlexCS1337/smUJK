@@ -3381,7 +3381,7 @@ void Cmd_About_f(gentity_t *ent)
 		return;
 
 	Q_strncpyz(buf, va("^5 Hi there, %s^5. This server is using the smUJK mod.\n", ent->client->pers.netname), sizeof(buf));
-	Q_strcat(buf, sizeof(buf), "   ^3There are a bunch of WIP commands such as /showEffect" );
+	Q_strcat(buf, sizeof(buf), "   ^3There are a bunch of WIP commands such as /showeffect /listfx /remap" );
 	trap->SendServerCommand(ent-g_entities, va("print \"%s\n\"", buf));
 
 	return;
@@ -3389,12 +3389,135 @@ void Cmd_About_f(gentity_t *ent)
 
 void Cmd_ShowEffect_f(gentity_t *ent)
 {
+	char arg[MAX_STRING_CHARS];
+	//char buffer[MAX_TOKEN_CHARS];
+	char *toLower;
+	int i;
+	fileHandle_t	f;
+
 	if (!ent || !ent->client)
 		return;
 
+	// Get the effect name.
+	trap->Argv( 1, arg, sizeof( arg ) );
+	toLower = arg;
+	Q_strlwr(toLower);
+
+	i = trap->FS_Open( va( "effects/%s.efx", arg), &f, FS_READ);
+
+	if (!f || i <= 0)
+	{
+		trap->SendServerCommand( ent->s.number, va("print \"Effect unavailable on server. Did you get the name right?\n\""));
+		return;
+	}
+
 	G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/effects/green_lightning1.wav"));
-	G_PlayEffectID(G_EffectIndex("effects/env/electricity.efx"), ent->client->ps.origin, ent->client->ps.viewangles);
+	G_PlayEffectID(G_EffectIndex(G_NewString(arg)), ent->client->ps.origin, ent->client->ps.viewangles);
+	//G_PlayEffectID(G_EffectIndex("effects/env/electricity.efx"), ent->client->ps.origin, ent->client->ps.viewangles);
 	return;
+}
+
+
+void Cmd_listfx_f( gentity_t *ent )
+{
+	int numEntries;
+	char buffer[MAX_TOKEN_CHARS];
+	char list[2048];
+	char* listptr;
+	int i, length;
+
+	/*if ( !sv_cheats.integer) //
+	{
+		trap->SendServerCommand( ent->s.number, va(print \"You do not have permission to use this command\n\""));
+		return;
+	}*/
+
+	if ( trap->Argc() > 2)
+	{
+		trap->SendServerCommand( ent->s.number, va("print \"Command usage:  mlistfx <optional-folder-name>\n\""));
+		return;
+	}
+
+	if ( trap->Argc() == 1 )
+	{
+		numEntries = trap->FS_GetFileList("effects/", "/", list, 2048 );
+
+		listptr = list;
+
+		trap->SendServerCommand( ent->s.number, va("print \"Use /mlistfx <folder-name> to see the contents of one of these folders.\n\""));
+
+		for( i = 0 ; i < numEntries ; i++ )
+		{
+			trap->SendServerCommand( ent->s.number, va("print \"%s\n\"", listptr) );
+			listptr += (strlen( listptr ) + 1);
+		}
+	}
+	else
+	{
+		trap->Argv( 1, buffer, sizeof( buffer ) );
+
+		numEntries = trap->FS_GetFileList(va("effects/%s", buffer), ".efx", list, 2048 );
+
+		listptr = list;
+
+		if ( numEntries == 0 )
+		{
+			trap->SendServerCommand( ent->s.number, va("print \"No models found. Did you enter the right folder name?\n\""));
+		}
+
+		for( i = 0 ; i < numEntries ; i++ )
+		{
+			length = strlen( listptr );
+			*(listptr + length - 4) = 0;
+			trap->SendServerCommand( ent->s.number, va("print \"%s\n\"", listptr) );
+			listptr += (length + 1);
+		}
+	}
+}
+
+
+/*
+==================
+Cmd_Remap_f
+==================
+*/
+void Cmd_Remap_f( gentity_t *ent ) {
+	int number_of_args = trap->Argc();
+	char arg1[MAX_STRING_CHARS];
+	char arg2[MAX_STRING_CHARS];
+	float f = level.time * 0.001;
+
+	/*if (!permission)
+	{ 
+		trap->SendServerCommand( ent->s.number, "print \"You don't have this admin command.\n\"" );
+		return;
+	}*/
+
+	if ( number_of_args < 3)
+	{
+		trap->SendServerCommand( ent->s.number, va("print \"You must specify the old shader and new shader. Ex: ^3/remap gfx/mp/chat_icon gfx/2d/net7\n\"") );
+		return;
+	}
+
+	trap->Argv( 1, arg1, sizeof( arg1 ) );
+	trap->Argv( 2, arg2, sizeof( arg2 ) );
+
+	if (strlen(arg1) >= MAX_QPATH)
+	{
+		trap->SendServerCommand(ent->s.number, "print \"Old shader name is too big.\n\"");
+		return;
+	}
+
+	if (strlen(arg2) >= MAX_QPATH)
+	{
+		trap->SendServerCommand(ent->s.number, "print \"New shader name is too big.\n\"");
+		return;
+	}
+
+	AddRemap(G_NewString(arg1), G_NewString(arg2), f);
+	trap->SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
+
+	trap->SendServerCommand( ent->s.number, "print \"Shader remapped\n\"" );
 }
 
 /*
@@ -3459,7 +3582,9 @@ command_t commands[] = {
 	{ "where",				Cmd_Where_f,				CMD_NOINTERMISSION },
 // smUJK commands
 	{ "about",				Cmd_About_f,				0 },
-	{ "showeffect",			Cmd_ShowEffect_f,			CMD_ALIVE|CMD_NOINTERMISSION },	
+	{ "showeffect",			Cmd_ShowEffect_f,			CMD_ALIVE|CMD_NOINTERMISSION },
+	{ "listfx",				Cmd_listfx_f,				CMD_ALIVE|CMD_NOINTERMISSION },
+	{ "remap",				Cmd_Remap_f,				CMD_CHEAT|CMD_NOINTERMISSION },
 };
 static const size_t numCommands = ARRAY_LEN( commands );
 
