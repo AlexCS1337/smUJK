@@ -314,6 +314,12 @@ FILE*		missingFiles = NULL;
 #  endif
 #endif
 
+const char *get_filename(const char *path) {
+	const char *slash = strrchr(path, PATH_SEP);
+	if (!slash || slash == path) return "";
+	return slash + 1;
+}
+
 const char *get_filename_ext(const char *filename) {
 	const char *dot = strrchr(filename, '.');
 	if (!dot || dot == filename) return "";
